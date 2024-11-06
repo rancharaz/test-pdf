@@ -1,40 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Select Files to Download</title>
+    <title>Data from JSON</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #f9fafb; /* Light background */
-        }
-    </style>
 </head>
-<body class="flex items-center justify-center min-h-screen">
-    <div class="bg-white rounded-lg shadow-lg p-8 w-full max-w-lg">
-        <h1 class="text-2xl font-semibold text-center text-gray-800 mb-6">Choisir anomalie</h1>
 
+<body>
+    <div class="container mx-auto mt-10">
+        <h1 class="text-2xl font-bold mb-5">Data from JSON</h1>
         <form action="{{ route('download') }}" method="POST">
             @csrf
-
-            <!-- JSON Data Options -->
-            @if($data && count($data) > 0)
+            @if(is_array($data) && count($data) > 0)
+            <ul class="space-y-2">
                 @foreach($data as $item)
-                    <div class="flex items-center mb-4">
-                        <input type="checkbox" name="" value="{($item['id']) }}" class="h-5 w-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
-                        <label class="ml-2 text-gray-700"> Id: {{ ($item['id']) }}</label>
+                <li class="flex justify-between items-center p-4 border rounded-lg shadow">
+                    <div class="flex items-center">
+                        <input type="checkbox" name="files[]" value="{{ $item['id'] }}"
+                            class="h-5 w-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                        <span class="ml-2"><strong>ID:</strong> {{ $item['id'] }} || <strong>Name:</strong> {{ $item['name'] }}</span>
                     </div>
+                    <a href="{{ url('/data/' . $item['id']) }}"
+                        class="text-indigo-600 hover:underline">Show Data</a>
+                </li>
                 @endforeach
+            </ul>
             @else
-                <p class="text-red-500 text-center">No files available for selection.</p>
+            <p class="text-gray-500">No data found.</p>
             @endif
-            
-            <button type="submit" class="w-full bg-indigo-600 text-white font-semibold py-2 rounded hover:bg-indigo-500 transition duration-200">
-                Telecharger
-            </button>
-
+            <div class="mt-4">
+                <button type="submit"
+                    class="w-full bg-indigo-600 text-white font-semibold py-2 rounded hover:bg-indigo-500 transition duration-200">
+                    Téléchargez Anomalie
+                </button>
+            </div>
         </form>
     </div>
+
 </body>
+
 </html>

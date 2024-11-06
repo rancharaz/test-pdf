@@ -3,6 +3,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DownloadMultipleFiches;
+use App\Http\Controllers\JsonController;
+
 use Spatie\LaravelPdf\Facades\Pdf;
 
 // Main route to welcome page
@@ -11,11 +13,11 @@ Route::get('/', function () {
 });
 
 // Route to the file selection page
-Route::get('/test', function () {
+/* Route::get('/test', function () {
     $directoryPath = storage_path('demo'); // Adjust this path as needed
     $files = array_diff(scandir($directoryPath), ['.', '..']); // Get all files in the directory
     return view('test', compact('files')); // Pass files to the view
-})->name('file.select');
+})->name('file.select'); */
 
 // Route to handle the download of selected files
 Route::post('download', [DownloadMultipleFiches::class, 'download'])->name('download');
@@ -32,5 +34,15 @@ Route::get('cv-download', function() {
 
 // Optional: If you want to handle another submission for downloading, consider clarifying its purpose
 // Route::post('cv-download', [DownloadMultipleFiches::class, 'download']);
+Route::get('/test', [DownloadMultipleFiches::class, 'showComments'])->name('file.select');
+/* 
+Route::get('/test-json', function () {
+    return view('test-json');
+}); */
 
- 
+Route::get('/test-json', [JsonController::class, 'dataFromJson']);
+Route::get('/data/{id}', [JsonController::class, 'showDataById']);
+
+
+Route::get('/select-id', [JsonController::class, 'showSelectIdForm'])->name('select-id');
+Route::get('/show-data', [JsonController::class, 'showData'])->name('show-data');

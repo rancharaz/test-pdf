@@ -9,48 +9,121 @@ use Spatie\LaravelPdf\Facades\Pdf;
 
 class DownloadMultipleFiches extends Controller
 {
-    
+    public function showComments()
+    {
+        $jsonFilePath = storage_path('demo/data.json');
+
+        if (!file_exists($jsonFilePath)) {
+            abort(404, 'JSON file not found.');
+        }
+
+        $jsonContent = file_get_contents($jsonFilePath);
+        $data = json_decode($jsonContent, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            abort(500, 'Error decoding JSON.');
+        }
+
+        return view('test', ['comments' => $data]); // Pass the comments to the view
+    }
+
     public function download(Request $request)
     {
         // Create a new ZIP archive
         $zip = new ZipArchive();
         $zipFileName = 'anomalie.zip';
         $tempZipPath = storage_path($zipFileName);
-    
+
         if ($zip->open($tempZipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
             return response()->json(['error' => 'Could not create ZIP file'], 500);
         }
-    
-        // Get the selected files from the request
+
+        // Get the selected file IDs from the request
         $selectedFiles = $request->input('files', []);
         
         // Directory for storing downloaded PDFs temporarily
-        $tempDirectory = storage_path('temp'); // Adjust if needed
+        $tempDirectory = storage_path('temp');
         if (!is_dir($tempDirectory)) {
-            mkdir($tempDirectory, 0755, true); // Create the directory if it doesn't exist
+            mkdir($tempDirectory, 0755, true);
         }
-    
-        // Loop through selected files
-        foreach ($selectedFiles as $file) {
-            if ($file === 'cv') {
-                $pdfPath = $tempDirectory . '/cv.pdf'; // Save the CV PDF
+
+        // Loop through selected file IDs
+        foreach ($selectedFiles as $fileId) {
+            // Fetch the data corresponding to the selected file ID
+            $data = $this->getDataById($fileId); // Fetch data based on ID
+
+            if ($data) {
+                $pdfPath = $tempDirectory . '/fiche-anomalie_' . $fileId . '.pdf'; // Save the PDF with a unique name
+
                 try {
-                    Pdf::view('anomalie.cv')->save($pdfPath); // Reference the CV view
+                    // Pass the fetched data to the PDF view
+                    Pdf::view('anomalie.cv', ['data' => $data])
+                    ->format('a5')
+                    ->save($pdfPath);
                 } catch (\Exception $e) {
-                    return response()->json(['error' => 'Failed to create PDF for CV: ' . $e->getMessage()], 500);
+                    return response()->json(['error' => 'Failed to create PDF for ID ' . $fileId . ': ' . $e->getMessage()], 500);
                 }
-    
+
+                // Add the generated PDF to the ZIP archive
                 if (file_exists($pdfPath)) {
-                    $zip->addFile($pdfPath, basename($pdfPath)); // Add CV PDF to ZIP
+                    $zip->addFile($pdfPath, basename($pdfPath));
+                } else {
+                    return response()->json(['error' => 'PDF file for ID ' . $fileId . ' not found'], 404);
                 }
+            } else {
+                return response()->json(['error' => 'No data found for ID ' . $fileId], 404);
             }
         }
-    
+
         $zip->close();
-    
+
         // Return the ZIP file for download and delete after sending
         return Response::download($tempZipPath)->deleteFileAfterSend(true);
     }
-    
-    
+
+    // Method to retrieve data by ID from the JSON file
+    protected function getDataById($id)
+    {
+        $jsonFilePath = storage_path('demo/data.json');
+
+        // Check if the file exists
+        if (!file_exists($jsonFilePath)) {
+            return null; // or handle the error as needed
+        }
+
+        $jsonContent = file_get_contents($jsonFilePath);
+        $data = json_decode($jsonContent, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE || !is_array($data)) {
+            return null; // or handle the error as needed
+        }
+
+        // Find the specific item by ID
+        $item = collect($data)->firstWhere('id', $id);
+        return $item ?: null; // Return null if not found
+    }
+
+    public function showDataById($id)
+    {
+        $jsonFilePath = storage_path('demo/data.json');
+
+        // Check if the file exists
+        if (!file_exists($jsonFilePath)) {
+            abort(404, 'JSON file not found.');
+        }
+        
+        $jsonContent = file_get_contents($jsonFilePath);
+        $data = json_decode($jsonContent, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE || !is_array($data)) {
+            abort(500, 'Error decoding JSON or empty data.');
+        }
+
+        // Find the specific item by ID
+        $item = collect($data)->firstWhere('id', $id);
+        if (!$item) {
+            abort(404, 'Data not found for ID: ' . $id);
+        }
+        return view('show-data', ['item' => $item]);
+    }
 }

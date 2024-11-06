@@ -17,7 +17,11 @@
 <body class="flex items-center justify-center min-h-screen">
     <div class="bg-white rounded-lg shadow-lg p-8 w-full max-w-lg">
         <h1 class="text-2xl font-semibold text-center text-gray-800 mb-6">Select Files to Download</h1>
-
+        <div class="container mx-auto p-8">
+            <h1 class="text-3xl font-bold mb-4">Comments IDs</h1>
+            
+           
+        </div>
         <form action="{{ route('download') }}" method="POST">
             @csrf
 
