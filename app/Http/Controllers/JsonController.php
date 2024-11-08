@@ -21,25 +21,27 @@ class JsonController extends Controller
         return view('test-json', ['data' => $data]);
     }
     public function showDataById($id) {
-            $jsonFilePath = storage_path('demo/data.json');
+        $jsonFilePath = storage_path('demo/data.json');
 
-            // Check if the file exists
-            if (!file_exists($jsonFilePath)) {
-                abort(404, 'JSON file not found.');
-            }
-            $jsonContent = file_get_contents($jsonFilePath);
-            $data = json_decode($jsonContent, true);
+        // Check if the file exists
+        if (!file_exists($jsonFilePath)) {
+            abort(404, 'JSON file not found.');
+        }
+        $jsonContent = file_get_contents($jsonFilePath);
+        $data = json_decode($jsonContent, true);
 
-            if (json_last_error() !== JSON_ERROR_NONE || !is_array($data)) {
-                abort(500, 'Error decoding JSON or empty data.');
-            }
+        if (json_last_error() !== JSON_ERROR_NONE || !is_array($data)) {
+            abort(500, 'Error decoding JSON or empty data.');
+        }
 
-            // Find the specific item by ID
-            $item = collect($data)->firstWhere('id', $id);
-            if (!$item) {
-                abort(404, 'Data not found for ID: ' . $id);
-            }
-            return view('show-data', ['item' => $item]);
+        // Find the specific item by ID
+        $item = collect($data)->firstWhere('signalement.id', $id);
+        if (!$item) {
+            abort(404, 'Data not found for ID: ' . $id);
+        }
+        $anomaly_name = $item['signalement']['anomaly_name'] ?? 'No anomaly name available';
+
+        return view('show-data', ['item' => $item, 'anomaly_name' => $anomaly_name]);
 }
 
 public function showData(Request $request)

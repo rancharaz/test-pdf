@@ -26,11 +26,11 @@ Route::post('download', [DownloadMultipleFiches::class, 'download'])->name('down
 Route::get('/cv', [DownloadMultipleFiches::class, 'show'])->name('cv.page');
 
 // Route to download the CV as a PDF (if needed, adjust this as per your logic)
-Route::get('cv-download', function() {
+/* Route::get('cv-download', function() {
     $pdfPath = storage_path('demo/cv.pdf'); // Save the PDF to this location
     Pdf::view('anomalie.cv')->save($pdfPath); // Adjust path to your actual Blade view
     return response()->download($pdfPath)->deleteFileAfterSend(true);
-})->name('cv.download');
+})->name('cv.download'); */
 
 // Optional: If you want to handle another submission for downloading, consider clarifying its purpose
 // Route::post('cv-download', [DownloadMultipleFiches::class, 'download']);
@@ -41,7 +41,7 @@ Route::get('/test-json', function () {
 }); */
 
 Route::get('/test-json', [JsonController::class, 'dataFromJson']);
-Route::get('/data/{id}', [JsonController::class, 'showDataById']);
+Route::get('/data/{signalement.id}', [JsonController::class, 'showDataById']);
 
 
 Route::get('/select-id', [JsonController::class, 'showSelectIdForm'])->name('select-id');

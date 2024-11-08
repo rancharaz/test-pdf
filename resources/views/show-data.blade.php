@@ -1,25 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Details</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Signalement Details</title>
 </head>
-
 <body>
-    <div class="container mt-5">
-        <h1>Data Details</h1>
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">ID: {{ $item['id'] }}</h5>
-                <p><strong>Name:</strong> {{ $item['name'] }}</p>
-                <p><strong>Email:</strong> {{ $item['email'] }}</p>
-                <p><strong>Body:</strong> {{ $item['body'] }}</p>
-            </div>
-        </div>
-        <a href="{{ url()->previous() }}" class="btn btn-primary mt-3">Go Back</a>
-    </div>
+    <h1>Signalement Details</h1>
+
+    <!-- Display Anomaly Name -->
+    <p><strong>Anomaly Name:</strong> {{ $anomaly_name }}</p>
+
+    <!-- Optionally, display other details from the item -->
+    <p><strong>Client Name:</strong> {{ $item['signalement']['client_name'] }}</p>
+    <p><strong>Type of Anomaly:</strong> {{ $item['signalement']['anomaly'] }}</p>
+    
+    <!-- Display Images if available -->
+    @if(!empty($item['signalement']['anomaly_images']))
+        <p><strong>Image:</strong></p>
+        <img src="{{ asset('storage/' . $item['signalement']['anomaly_images'][0]['src']) }}" alt="Anomaly Image">
+    @endif
+
+    <!-- Go Back Button -->
+    <a href="{{ url()->previous() }}">Go Back</a>
 </body>
 </html>
